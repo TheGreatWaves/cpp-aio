@@ -15,25 +15,14 @@ template<typename ... Args> auto log(Args&& ... args)->void{(std::cout<<...<<std
 #define DEBUG(variable) log("[Line: ",__LINE__,"] ",MAKE_STR(variable)," = ",variable,'\n'); 
 
 #define FIELD(typename, fieldname) typename fieldname;
-#define PRINT_FIELD(typename, fieldname) ss << "    " << STR(typename) << ": " << STR(fieldname) << " = " << this->fieldname << '\n';
+#define PRINT_FIELD(typename, fieldname) ss << STR(fieldname) << ": " << STR(typename) << " = " << this->fieldname << ", ";
 
 #define STRUCT(struct_name) \
 struct struct_name { \
   FIELDS(FIELD) \
   const char* name { #struct_name }; \
-  std::string stringify() const \
-  { \
-    std::stringstream ss; \
-    ss << "struct " << STR(struct_name) << "\n{\n"; \
-    FIELDS(PRINT_FIELD) \
-    ss << "}\n"; \
-    return ss.str(); \
-  } \
-  friend std::ostream& operator<<(std::ostream& os, const struct_name & obj) \
-  { \
-    os << obj.stringify(); \
-    return os; \
-  } \
+  std::string stringify() const { std::stringstream ss; ss << "struct " << STR(struct_name) << "{ "; FIELDS(PRINT_FIELD); ss << "}"; return ss.str(); } \
+  friend std::ostream& operator<<(std::ostream& os, const struct_name & obj) { os << obj.stringify(); return os; } \
 } 
 
 // src: https://www.scs.stanford.edu/~dm/blog/va-opt.html#the-for_each-macro
@@ -51,12 +40,18 @@ struct struct_name { \
   x(int, a); \
   x(int, b);
 STRUCT(Something);
+#undef FIELDS
 
+#define FIELDS(x) \
+  x(int, a); \
+  x(Something, smth); 
+STRUCT(SomethingElse);
+#undef FIELDS
 
 
 int main() 
 {
-  auto smth = Something { 10, 2 };
+  auto smth = SomethingElse { 10, Something { 1, 2 } };
   DEBUG(smth);
   smth.a = 22;
   DEBUG(smth);
