@@ -16,15 +16,16 @@ template<typename ... Args> auto log(Args&& ... args)->void{(std::cout<<...<<std
 
 #define FIELD(typename, fieldname) typename fieldname;
 #define PRINT_FIELD(typename, fieldname) ss << STR(fieldname) << ": " << STR(typename) << " = " << this->fieldname << ", ";
-
-#define STRUCT(struct_name) \
+#define STRUCT(struct_name, ...) \
 struct struct_name { \
   FIELDS(FIELD) \
   const char* name { #struct_name }; \
   std::string stringify() const { std::stringstream ss; ss << "struct " << STR(struct_name) << "{ "; FIELDS(PRINT_FIELD); ss << "}"; return ss.str(); } \
   friend std::ostream& operator<<(std::ostream& os, const struct_name & obj) { os << obj.stringify(); return os; } \
+  __VA_ARGS__ \
 } 
 
+/* FOR EACH LOOP */
 // src: https://www.scs.stanford.edu/~dm/blog/va-opt.html#the-for_each-macro
 #define PARENS ()
 #define EXPAND(...) EXPAND4(EXPAND4(EXPAND4(EXPAND4(__VA_ARGS__))))
@@ -39,7 +40,16 @@ struct struct_name { \
 #define FIELDS(x) \
   x(int, a); \
   x(int, b);
-STRUCT(Something);
+STRUCT(Something,
+  void hello() 
+  { 
+    std::cout << "Hello" << '\n'; 
+  }
+  void world() 
+  { 
+    std::cout << "World!" << '\n'; 
+  }
+);
 #undef FIELDS
 
 #define FIELDS(x) \
@@ -52,7 +62,10 @@ STRUCT(SomethingElse);
 int main() 
 {
   auto smth = SomethingElse { 10, Something { 1, 2 } };
+  
   DEBUG(smth);
   smth.a = 22;
   DEBUG(smth);
+  smth.smth.hello();
+  smth.smth.world();
 }
