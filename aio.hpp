@@ -13,7 +13,8 @@ using i64 = int64_t;    // 2^63 - 1
 
 /* STRING MACRO HELPER */
 #define MAKE_STR(s) #s
-#define STR_JOIN(s1, s2) MAKE_STR(s1 ## s2)
+#define TKN_JOIN(t1, t2) t1 ## t2
+#define STR_JOIN(s1, s2) MAKE_STR(TKN_JOIN(s1,s2))
 #define STR(s) MAKE_STR(s)
 
 /* LOGGER */
@@ -53,8 +54,8 @@ constexpr auto type_name() {
 #define STRUCT(struct_name, ...) \
 struct struct_name { \
   FIELDS(FIELD) \
-  nullptr_t _ = nullptr; \
-  struct_name(FIELDS(PARAMS)nullptr_t _=nullptr):FIELDS(INIT_FIELD)_(_){}\
+  std::nullptr_t _ = nullptr; \
+  struct_name(FIELDS(PARAMS)std::nullptr_t _=nullptr):FIELDS(INIT_FIELD)_(nullptr){}\
   struct_name() = default; \
   std::string stringify()const{std::stringstream ss;ss<<"struct "<< STR(struct_name)<<"{ ";FIELDS(STRINGIFY_FIELD);ss<<"}";return ss.str();} \
   friend std::ostream& operator<<(std::ostream& os, const struct_name& obj){os<<obj.stringify();return os;} \
@@ -92,12 +93,10 @@ std::ostream& operator<<(std::ostream& os, type t) { \
 }
 
 /* Vector printer */ 
-template<typename T>
-std::ostream & operator<<(std::ostream& os, std::vector<T> vec)
-{
-  os<<"[ ";
-  std::for_each(vec.begin(), vec.end(), [&os](auto& elem){os<<elem<<", ";});
-  os<<"] ";
-  return os;
-}
+template<typename T> std::ostream & operator<<(std::ostream& os, std::vector<T> vec) { os<<"[ "; std::for_each(vec.begin(), vec.end(), [&os](auto& elem){os<<elem<<", ";}); os<<"] "; return os; }
 
+/* Defer */
+template<typename F> struct _Defer { F action; _Defer(F _action) : action(_action) {}  ~_Defer() { this->action(); } };
+template<typename F> _Defer<F> make_defer(F action) { return _Defer<F>(action); }
+#define DEFER_VAR(counter) TKN_JOIN(_defer, counter)
+#define defer(action) auto DEFER_VAR(__COUNTER__) = make_defer([&](){action; });
