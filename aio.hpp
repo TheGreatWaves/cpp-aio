@@ -100,3 +100,40 @@ template<typename F> struct _Defer { F action; _Defer(F _action) : action(_actio
 template<typename F> _Defer<F> make_defer(F action) { return _Defer<F>(action); }
 #define DEFER_VAR(counter) TKN_JOIN(_defer, counter)
 #define defer(action) auto DEFER_VAR(__COUNTER__) = make_defer([&](){action; });
+
+
+/* Pattern matching if */
+#define CAT(a, ...) PRIMITIVE_CAT(a, __VA_ARGS__)
+#define PRIMITIVE_CAT(a, ...) a ## __VA_ARGS__
+#define IIF(c) PRIMITIVE_CAT(IFF_, c)
+#define IFF_0(t, ...) __VA_ARGS__
+#define IFF_1(t, ...) t
+
+/* Complement */
+#define COMPL(b) PRIMITIVE_CAT(COMPL_, b)
+#define COMPL_0 1
+#define COMPL_1 0
+
+// NOTE: If CHECK is only passed in one arg, 0 will be returned
+#define CHECK_N(x, n, ...) n
+#define CHECK(...) CHECK_N(__VA_ARGS__, 0,)
+#define PROBE(x) x, 1,
+
+/* Parenthesis Detection Macro */
+#define IS_PAREN(x) CHECK(IS_PAREN_PROBE x)
+#define IS_PAREN_PROBE(...) PROBE(~)
+
+/* NOT operation */
+// NOTE: Only one arg is passed in if invalid macro call (NOT_1), yielding 0
+//       else we probe and returns 1
+#define NOT(x) CHECK(PRIMITIVE_CAT(NOT_, x))
+#define NOT_0 PROBE(~)
+
+#define BOOL(x) COMPL(NOT(x))
+#define IF(c) IIF(BOOL(c))
+
+#define EAT(...)
+#define EXPAND_ARGS(...) __VA_ARGS__
+#define WHEN(c) IF(c)(EXPAND_ARGS, EAT)
+
+
