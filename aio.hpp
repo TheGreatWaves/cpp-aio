@@ -74,16 +74,20 @@ struct struct_name { \
 #define FOR_EACH_HELPER(macro, a1, ...) macro(a1) __VA_OPT__(FOR_EACH_AGAIN PARENS (macro, __VA_ARGS__))
 #define FOR_EACH_AGAIN() FOR_EACH_HELPER
 
+#define FOR_EACH_EXTRA(macro, extarg, ...) __VA_OPT__(EXPAND(FOR_EACH_HELPER_EXTRA(macro, extarg, __VA_ARGS__)))
+#define FOR_EACH_HELPER_EXTRA(macro, extarg, a1, ...) macro(extarg, a1) __VA_OPT__(FOR_EACH_AGAIN_EXTRA PARENS (macro, extarg, __VA_ARGS__))
+#define FOR_EACH_AGAIN_EXTRA() FOR_EACH_HELPER_EXTRA
+
 /* Enum (Without needing to use xmacro, but it's not enum class) */
 // src: https://www.scs.stanford.edu/~dm/blog/va-opt.html
-#define STRINGIFY(x) case x: return #x;
+#define STRINGIFY_ENUM(name, x) case name::x: return STR(name::x);
 #define MAKE_ENUM(type, ...) \
-enum type { \
+enum class type { \
 __VA_ARGS__ \
 }; \
 constexpr const char* stringify(type t) { \
   switch(t) { \
-    FOR_EACH(STRINGIFY, __VA_ARGS__) \
+    FOR_EACH_EXTRA(STRINGIFY_ENUM, type, __VA_ARGS__) \
     default: throw("Unreachable"); \
   } \
 } \
@@ -137,5 +141,6 @@ template<typename F> _Defer<F> operator+(DeferGuard, F&& action) { return make_d
 #define EAT(...)
 #define EXPAND_ARGS(...) __VA_ARGS__
 #define WHEN(c) IF(c)(EXPAND_ARGS, EAT)
+
 
 

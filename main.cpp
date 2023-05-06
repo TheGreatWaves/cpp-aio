@@ -66,6 +66,5 @@ auto main() -> int {
   defer{
     defer{ log("COMPLETED DEFER!\n"); };
     std::cout << "hello world!";
-    std::cout << " Wow this is is cool\n";
   };
 }
