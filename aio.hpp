@@ -97,9 +97,11 @@ template<typename T> std::ostream & operator<<(std::ostream& os, std::vector<T> 
 
 /* Defer */
 template<typename F> struct _Defer { F action; _Defer(F _action) : action(_action) {}  ~_Defer() { this->action(); } };
-template<typename F> _Defer<F> make_defer(F action) { return _Defer<F>(action); }
+template<typename F> _Defer<F> make_defer(F&& action) { return _Defer<F>(std::forward<F>(action)); }
+enum class DeferGuard {};
+template<typename F> _Defer<F> operator+(DeferGuard, F&& action) { return make_defer(std::forward<F>(action)); }
 #define DEFER_VAR(counter) TKN_JOIN(_defer, counter)
-#define defer(action) auto DEFER_VAR(__COUNTER__) = make_defer([&](){action; });
+#define defer auto DEFER_VAR(__COUNTER__) = DeferGuard() + [&]()
 
 
 /* Pattern matching if */

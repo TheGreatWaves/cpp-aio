@@ -44,7 +44,7 @@ STRUCT(Bus,
     while( !this->passengers.empty() )
     {
       auto passenger = std::move(this->passengers.back());
-      defer(this->thank_the_bus_driver(passenger));
+      defer{this->thank_the_bus_driver(passenger);};
       this->passengers.pop_back();
     }
   }
@@ -52,20 +52,20 @@ STRUCT(Bus,
 #undef FIELDS
  
 auto main() -> int {
-  // auto person = PersonInfo(20, "John", Status::ALIVE);
-  // DEBUG(person);
-  // DEBUG(person.name);
-  // DEBUG(person.age);
-  // DEBUG(person.status);
-  // person.self_introduction();
-  // auto person2 = PersonInfo{ 17, "Bob", Status::ALIVE };
-  // auto bus = Bus({person, person2});
-  // bus.introduce_passengers();
-  // bus.drop_off_passengers();
+  auto person = PersonInfo(20, "John", Status::ALIVE);
+  DEBUG(person);
+  DEBUG(person.name);
+  DEBUG(person.age);
+  DEBUG(person.status);
+  person.self_introduction();
+  auto person2 = PersonInfo{ 17, "Bob", Status::ALIVE };
+  auto bus = Bus({person, person2});
+  bus.introduce_passengers();
+  bus.drop_off_passengers();
 
-  // defer({
-  //   defer(log("COMPLETED DEFER!\n"));
-  //   std::cout << "hello world!";
-  //   std::cout << " Wow this is is cool\n";
-  // });
+  defer{
+    defer{ log("COMPLETED DEFER!\n"); };
+    std::cout << "hello world!";
+    std::cout << " Wow this is is cool\n";
+  };
 }
