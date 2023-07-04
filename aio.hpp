@@ -142,5 +142,29 @@ template<typename F> _Defer<F> operator+(DeferGuard, F&& action) { return make_d
 #define EXPAND_ARGS(...) __VA_ARGS__
 #define WHEN(c) IF(c)(EXPAND_ARGS, EAT)
 
+#define FOR(i, n) for(int i=0;i<n;i++)
 
+// Reads a single input of some type from an in-stream and return the variable.
+template<class T>
+T get(std::istream& is)
+{
+  T result;
+  is >> result;
+  return result;
+}
+
+// Reads read input from standard input and returns the element.
+#define read(t) get<t>(std::cin)
+
+// Read the next `n` elements and returns a vector containing the elements.
+template <typename T>
+std::vector<T> read_into_vec(int n)
+{
+  std::vector<T> result;
+  FOR(_, n)
+  {
+    result.push_back(read(T));
+  }
+  return result;
+}
 

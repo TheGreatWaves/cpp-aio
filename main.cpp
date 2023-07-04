@@ -63,7 +63,7 @@ auto main() -> int {
   bus.introduce_passengers();
   bus.drop_off_passengers();
 
-  defer{
+  defer {
     defer{ log("COMPLETED DEFER!\n"); };
     std::cout << "hello world!";
   };
